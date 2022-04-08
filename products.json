@@ -1,0 +1,40 @@
+{
+    "List": {
+        "data": "z",
+        "list": [
+            {
+                "List": {
+                    "data": "a",
+                    "list": [
+                        {
+                            "Item": 1
+                        },
+                        {
+                            "Item": 4
+                        }
+                    ]
+                }
+            },
+            {
+                "List": {
+                    "data": "b",
+                    "list": [
+                        {
+                            "List": {
+                                "data": "b",
+                                "list": [
+                                    {
+                                        "Item": 32
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "Item": 2
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
