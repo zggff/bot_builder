@@ -7,10 +7,18 @@
                     "data": "a",
                     "list": [
                         {
-                            "Item": 1
+                            "Item": {
+                                "price": 100,
+                                "title": "Fewa",
+                                "description": "zggff"
+                            }
                         },
                         {
-                            "Item": 4
+                            "Item": {
+                                "price": 100,
+                                "title": "Fewa",
+                                "description": "zggff"
+                            }
                         }
                     ]
                 }
@@ -24,13 +32,21 @@
                                 "data": "b",
                                 "list": [
                                     {
-                                        "Item": 32
+                                        "Item": {
+                                            "price": 100,
+                                            "title": "Fewa",
+                                            "description": "zggff"
+                                        }
                                     }
                                 ]
                             }
                         },
                         {
-                            "Item": 2
+                            "Item": {
+                                "price": 100,
+                                "title": "Fewa",
+                                "description": "zggff"
+                            }
                         }
                     ]
                 }

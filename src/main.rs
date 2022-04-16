@@ -43,7 +43,9 @@ static PRODUCTS: SyncLazy<Catalogue<Product, String>> = SyncLazy::new(|| {
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv::dotenv()?;
     log4rs::init_file("log.yaml", Default::default()).unwrap();
-    run().await
+    // log::info!("{:#?}", PRODUCTS.get(Index::new(vec![])));
+    run().await?;
+    Ok(())
 }
 
 async fn run() -> Result<(), Box<dyn Error>> {
@@ -66,7 +68,7 @@ async fn run() -> Result<(), Box<dyn Error>> {
 fn generate_keyboard(index: &Index) -> Option<InlineKeyboardMarkup> {
     let entries = PRODUCTS.get(index)?;
     if let Catalogue::List { list, .. } = entries {
-        let keyboard: Vec<Vec<InlineKeyboardButton>> = list
+        let mut keyboard: Vec<Vec<InlineKeyboardButton>> = list
             .chunks(3)
             .enumerate()
             .map(|(local_index, entries)| {
@@ -85,6 +87,12 @@ fn generate_keyboard(index: &Index) -> Option<InlineKeyboardMarkup> {
                     .collect()
             })
             .collect();
+        if let Some(parent) = index.parent() {
+            keyboard.push(vec![InlineKeyboardButton::callback(
+                "back".to_string(),
+                parent.to_string(),
+            )]);
+        }
         Some(InlineKeyboardMarkup::new(keyboard))
     } else {
         None
@@ -98,14 +106,25 @@ pub async fn callback_handler(
     let data = callback.data.as_ref().unwrap();
     let index = data.parse::<Index>().unwrap();
     let products = PRODUCTS.get(&index).unwrap();
-    match products {
-        Catalogue::List { data, list } => {
-            let keyboard = generate_keyboard(&index).unwrap();
-            bot.send_message(callback.id, "buy")
-                .reply_markup(keyboard)
-                .await?;
+    if let Some(Message { id, chat, .. }) = callback.message {
+        match products {
+            Catalogue::List { data, list } => {
+                let keyboard = generate_keyboard(&index).unwrap();
+                bot.edit_message_text(chat.id, id, "buy")
+                    .reply_markup(keyboard)
+                    .await?;
+            }
+            Catalogue::Item(item) => {
+                bot.edit_message_text(chat.id, id, format!("buy: {}", item.title))
+                    .reply_markup(InlineKeyboardMarkup::new([[
+                        InlineKeyboardButton::callback(
+                            "back".to_string(),
+                            index.parent().unwrap().to_string(),
+                        ),
+                    ]]))
+                    .await?;
+            }
         }
-        Catalogue::Item(item) => {}
     }
     Ok(())
 }
@@ -122,10 +141,10 @@ pub async fn message_handler(bot: AutoSend<Bot>, message: Message) -> Result<(),
                     .await?
             }
             Command::Buy => {
+                let keyboard = generate_keyboard(&Index::new(vec![])).unwrap();
+
                 bot.send_message(message.chat.id, "buy")
-                    .reply_markup(InlineKeyboardMarkup::new([[
-                        InlineKeyboardButton::callback("buy".to_string(), "/0/".to_string()),
-                    ]]))
+                    .reply_markup(keyboard)
                     .await?
             }
         };

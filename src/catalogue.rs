@@ -11,7 +11,7 @@ impl Index {
         index.0.push(value);
         index
     }
-    pub fn parent(&self, value: usize) -> Option<Index> {
+    pub fn parent(&self) -> Option<Index> {
         let mut index = self.clone();
         index.0.pop()?;
         Some(index)
@@ -25,7 +25,7 @@ impl Display for Index {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}",
+            "{}/",
             self.0
                 .iter()
                 .map(|subindex| subindex.to_string())
@@ -106,9 +106,6 @@ fn test_catalogue() {
             },
         ],
     };
-
-    println!("{}", serde_json::to_string_pretty(&catalogue).unwrap());
-    panic!();
 
     assert_eq!(
         catalogue.get(Index(vec![])).cloned(),
